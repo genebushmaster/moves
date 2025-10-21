@@ -22,27 +22,51 @@ pub async fn run_scheduler(mode: Mode, interval: Duration, state_path: &str) -> 
 async fn run_fixed_scheduler(interval: Duration, state_path: &str) -> Result<()> {
     loop {
         let next_time = calculate_next_fixed_time(interval)?;
-        let now = Local::now();
-        let wait_duration = (next_time - now).to_std()?;
 
-        let deadline = Instant::now() + wait_duration;
-        sleep_until(deadline).await;
+        loop {
+            let now = Local::now();
 
-        let state = State::load(state_path)?;
-        if !state.paused {
-            play_notification()?;
+            if now >= next_time {
+                let time_past = (now - next_time).num_seconds();
+
+                if time_past <= 5 {
+                    let state = State::load(state_path)?;
+                    if !state.paused {
+                        play_notification()?;
+                    }
+                }
+                break;
+            }
+
+            let time_until_next = (next_time - now).to_std().unwrap_or(Duration::from_secs(1));
+            let sleep_duration = time_until_next.min(Duration::from_secs(30));
+            sleep(sleep_duration).await;
         }
     }
 }
 
 async fn run_relative_scheduler(interval: Duration, state_path: &str) -> Result<()> {
-    loop {
-        sleep(interval).await;
+    let mut next_notification = Local::now() + chrono::Duration::from_std(interval)?;
 
-        let state = State::load(state_path)?;
-        if !state.paused {
-            play_notification()?;
+    loop {
+        let now = Local::now();
+
+        if now >= next_notification {
+            let time_past = (now - next_notification).num_seconds();
+
+            if time_past <= 5 {
+                let state = State::load(state_path)?;
+                if !state.paused {
+                    play_notification()?;
+                }
+            }
+            next_notification = Local::now() + chrono::Duration::from_std(interval)?;
         }
+
+        let time_until_next = (next_notification - now).to_std().unwrap_or(Duration::from_secs(1));
+        let sleep_duration = time_until_next.min(Duration::from_secs(30));
+
+        sleep(sleep_duration).await;
     }
 }
 

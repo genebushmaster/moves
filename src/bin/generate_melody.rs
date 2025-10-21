@@ -48,21 +48,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut writer = hound::WavWriter::create(output_path, spec)?;
 
-    let bb4 = 932.32;
-    let c5 = 1046.5;
-    let eb5 = 1224.5;
+    let bb4 = 2093.0;
+    let c5 = 2498.0;
+    let eb5 = 2794.0;
+    let g7 = 3136.0;
 
     let dotted_quarter = 1125;
     let eighth = 375;
     let quarter = 750;
-    let eighth_rest = 375;
 
     let melody_parts = vec![
+        ("rest", 0.0, eighth),
         ("note", bb4, eighth),
-        ("note", eb5, quarter),
-        ("rest", 0.0, eighth_rest),
         ("note", c5, eighth),
-        ("note", eb5, quarter),
+        ("rest", 0.0, eighth),
+        ("note", eb5, eighth),
+        ("note", c5, eighth),
+        ("rest", 0.0, eighth),
     ];
 
     for (part_type, freq, duration) in melody_parts {
