@@ -65,12 +65,6 @@ Supported formats: `1h`, `30m`, `1h30m`, `90m`
 - Fixed mode calculates next clock boundary based on interval
 - Relative mode uses simple repeating timer
 
-## Requirements
-
-- Linux system
-- PulseAudio (`paplay` command)
-- System sound files at `/usr/share/sounds/freedesktop/stereo/`
-
 ## License
 
-MIT
+GNU General Public License
